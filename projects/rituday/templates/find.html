@@ -1,0 +1,182 @@
+<!Doctype html>
+<html lang="ko">
+
+<head>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+
+        <!-- Bulma -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    </head>
+
+    <title>리튜데이 | 계정찾기</title>
+
+    <script>
+        function nullCheck1(value, text) {
+            if (value == null || value == undefined || value == "") {
+                $("#null-check1").html(text + " 입력하세요."); return false;
+            } else {
+                $("#null-check1").html("");
+            }
+        }
+
+        function nullCheck2(value, text) {
+            if (value == null || value == undefined || value == "") {
+                $("#null-check2").html(text + " 입력하세요."); return false;
+            } else {
+                $("#null-check2").html("");
+            }
+        }
+
+        function findId() {
+            //Clear
+            $("#null-check1").html("");
+
+            let name = $("#name1").val();
+            let email = $("#email1").val();
+
+            //Null Check
+            if (nullCheck1(name, "이름") == false) return false;
+            if (nullCheck1(email, "이메일") == false) return false;
+
+            //Check Email Format
+            let regExp = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.[a-zA-Z]{2,4}$/;
+
+            if(!regExp.test(email)){
+                $("#null-check1").html("올바른 이메일 형식이 아닙니다."); return false;
+            } else {
+                $("#null-check1").html("");
+            }
+
+            //Find Password with ID
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: "/account/find/id",
+                data: { give_name: name, give_email: email },
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        user_id = response["id"];
+                        $("#null-check1").html("아이디입니다. " + user_id);
+                    } else {
+                        $("#null-check1").html("일치하는 계정 정보가 존재하지 않습니다."); return false;
+                    }
+                }
+            })
+        }
+
+        function findPw() {
+            //Clear
+            $("#null-check2").html("");
+
+            let id = $("#id2").val();
+            let name = $("#name2").val();
+            let email = $("#email2").val();
+
+            //Null Check
+            if (nullCheck2(id, "아이디") == false) return false;
+            if (nullCheck2(name, "이름") == false) return false;
+            if (nullCheck2(email, "이메일") == false) return false;
+
+            //Check Email Format
+            let regExp = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.[a-zA-Z]{2,4}$/;
+
+            if(!regExp.test(email)){
+                $("#null-check2").html("올바른 이메일 형식이 아닙니다."); return false;
+            } else {
+                $("#null-check2").html("");
+            }
+
+            //Find Password with ID
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: "/account/find/password",
+                data: { give_id: id, give_name: name, give_email: email },
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        temporary = response["password"];
+                        $("#null-check2").html("임시 비밀번호입니다. 로그인 후 변경 바랍니다.<br>" + temporary);
+                    } else {
+                        $("#null-check2").html("일치하는 계정 정보가 존재하지 않습니다."); return false;
+                    }
+                }
+            })
+        }
+    </script>
+
+    <style>
+        #logo { 
+            text-align: center;
+        }
+
+        #null-check1, #null-check2, #id-check, #password-check {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero is-fullheight">
+        <div class="hero-body is-justify-content-center is-align-items-center">
+            <div class="columns is-flex is-flex-direction-column box">
+                <div id="logo" class="column">
+                    <img src="./../static/logo.png">
+                </div>
+                <div class="column">
+                    <label class="label" style="text-align: center">아이디를 찾아볼게요 !</label>
+                </div>
+                <div class="column">
+                    <label for="name1">이름</label>
+                    <input id="name1" class="input is-primary" type="text" placeholder="이름을 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="email1">이메일</label>
+                    <input id="email1" class="input is-primary" type="text" placeholder="이메일을 입력하세요.">
+                </div>
+                <div class="column">
+                    <div id="null-check1"></div>
+                </div>
+                <div class="column">
+                    <button class="button is-primary is-fullwidth" type="button" onclick="findId()">확인</button>
+                </div>
+                <hr>
+                
+                <div class="column">
+                    <label class="label" style="text-align: center">비밀번호를 찾아볼게요 !</label>
+                </div>
+                <div class="column">
+                    <label for="id2">아이디</label>
+                    <input id="id2" class="input is-primary" type="text" placeholder="아이디를 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="name2">이름</label>
+                    <input id="name2" class="input is-primary" type="text" placeholder="이름을 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="email2">이메일</label>
+                    <input id="email2" class="input is-primary" type="text" placeholder="이메일을 입력하세요.">
+                </div>
+                <div class="column">
+                    <div id="null-check2"></div>
+                </div>
+                <div class="column">
+                    <button class="button is-primary is-fullwidth" type="button" onclick="findPw()">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

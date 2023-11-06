@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+
+    <style>
+        * {
+          font-family: 'Jua', sans-serif;
+        }
+
+        ul {
+          list-style-type: none;
+        }
+
+        /* Month header */
+        .month {
+          padding: 60px 20px;
+          width: 100%;
+          background: #00D1B2;
+          text-align: center;
+        }
+
+        /* Month list */
+        .month ul {
+          margin: 0;
+          padding: 0;
+        }
+
+        .month ul {
+          color: white;
+          font-size: 20px;
+          text-transform: uppercase;
+          letter-spacing: 3px;
+        }
+
+        /* Previous button inside month header */
+        .month .prev {
+          float: left;
+          padding-top: 10px;
+        }
+
+        /* Next button */
+        .month .next {
+          float: right;
+          padding-top: 10px;
+          color: white;
+        }
+
+        /* Weekdays (Mon-Sun) */
+        .weekdays {
+          margin: 0;
+          padding: 10px 0;
+          background-color:#ddd;
+        }
+
+        .weekdays li {
+          display: inline-block;
+          width: 13.6%;
+          color: #666;
+          text-align: center;
+        }
+
+        /* Days (1-31) */
+        .days {
+          padding: 10px 0;
+          background: #eee;
+          margin: 0;
+        }
+
+        .days li {
+          list-style-type: none;
+          display: inline-block;
+          width: 13.3%;
+          text-align: center;
+          margin-left: 10px;
+          margin-bottom: 10px;
+          font-size:12px;
+          color: #777;
+        }
+
+        /* Highlight the "current" day */
+        .days li .active {
+          padding: 5px;
+          background: #1abc9c;
+          color: white !important
+        }
+
+        .content {
+            width: 150px;
+            height: 50px;
+            padding-top: 10px;
+        }
+
+        /* 각 card */
+        .card {
+            width: 200px;
+            height: 200px;
+            margin-top: 10px;
+        }
+
+        .button {
+          height: 10px;
+          margin-top: 3px;
+          font-family: 'Jua', sans-serif;
+        }
+
+        /* popup CSS */
+        .popup , .enroll, .morePopup{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            z-index: 9999;
+            width: 30%;
+            height: 60%;
+        }
+
+        .textPopup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            z-index: 9999;
+            width: 10%;
+            height: 20%;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 16px;
+            color: gray;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .popup-content {
+            margin-top: 40px;
+            margin-bottom: 40px;
+            padding-left: 50px;
+            padding-right: 50px;
+        }
+
+        .popup-more-content {
+            height: 300px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            padding-left: 50px;
+            padding-right: 50px;
+            overflow:auto;
+        }
+
+        .popup-label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .popup-input, .popup-input-deleteModify {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid gray;
+            margin-bottom: 10px;
+        }
+
+        .popup-select-enroll, .popup-select-modify, .popup-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid gray;
+            margin-bottom: 20px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path d="M3.3 10.3l11.4 11.4c.4.4 1 .4 1.4 0l11.4-11.4c.4-.4.4-1 0-1.4l-2.8-2.8c-.4-.4-1-.4-1.4 0L15 17.4 6.5 9c-.4-.4-1-.4-1.4 0l-2.8 2.8c-.4.4-.4 1 0 1.4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 18px 18px;
+        }
+
+        .popup-button {
+            display: block;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            line-height: 1;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .DeleteAndModify {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .enrollRitual {
+            position: fixed;
+            bottom: 20px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            font-family: 'Jua', sans-serif;
+            font-size: 20px;
+        }
+
+        .category {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          font-size: 500px;
+          margin-top: 10px;
+          margin-right: 10px;
+        }
+
+        #mongo {
+            display: none;
+        }
+
+        .category-yoga {
+          background-color: green;
+        }
+        .category-exercise {
+          background-color: red;
+        }
+        .category-meditation {
+          background-color: purple;
+        }
+        .category-clean {
+          background-color: blue;
+        }
+
+        .menu {
+          margin-left: 15px;
+        }
+
+        .media-left {
+          float: left;
+          font-size:medium;
+          font-weight: bold;
+        }
+
+        .month-text {
+          font-size: 30px;
+          font-weight: bold;
+        }
+
+        .category-list {
+          padding-left: 10px;
+          font-size: 20px;
+        }
+
+        .menu-list {
+          float: right;
+          font-size: 20px;
+          margin-top: 12px;
+          margin-right: 10px;
+          font-weight: bold;
+        }
+
+        .user-info {
+          float: right;
+          font-size: 20px;
+          margin-top: 17px;
+          margin-right: 10px;
+          font-weight: bold;
+        }
+
+        .logo {
+          width: 120px;
+          height: auto;
+          padding-left: 10px;
+        }
+
+        .weekday {
+          font-weight: bold;
+        }
+
+        .textPopup {
+          color: white;
+          background-color:deepskyblue;
+
+          line-height: 80px;
+          text-align: center;
+          width: 200px;
+          height: 80px;
+        }
+
+        .other {
+          display: none;
+        }
+
+        
+
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+    <script>
+        function logout() {
+            localStorage.removeItem("rituday");
+            location.reload();
+        }
+
+        function logButtonConvert() {
+            if (localStorage.getItem("rituday") == null) {
+                console.log("here")
+                //Menu Bar
+                $('.menu-list').html(`
+                <button class="button is-small" onClick="location.href='./login.html'">
+                    <label class="label">로그인 하기</label>
+                </button>
+                `);
+            } else {
+                $('.menu-list').html("");
+                
+                $('.menu-list').html(`
+                <button class="button is-small" onClick="logout()">
+                    <label class="label">로그아웃 하기</label>
+                </button>
+                `);
+            }
+        }
+
+        let date = new Date();
+
+        function renderCalender() {
+            //Get today
+            $('.month-text').html(date.getFullYear() + "년 "+(date.getMonth()+1) + "월");
+
+            const viewYear = date.getFullYear();
+            const viewMonth = date.getMonth();
+
+            const prevLast = new Date(viewYear, viewMonth, 0);
+            const thisLast = new Date(viewYear, viewMonth + 1, 0);
+
+            const PLDate = prevLast.getDate();
+            const PLDay = prevLast.getDay();
+
+            const TLDate = thisLast.getDate();
+            const TLDay = thisLast.getDay();
+
+            const prevDates = [];
+            const thisDates = [...Array(TLDate + 1).keys()].slice(1);
+            const nextDates = [];
+
+            if (PLDay !== 6) {
+              for (let i = 0; i < PLDay + 1; i++) {
+                prevDates.unshift(PLDate - i);
+              }
+            }
+
+            for (let i = 1; i < 7 - TLDay; i++) {
+              nextDates.push(i);
+            }
+
+            const dates = prevDates.concat(thisDates, nextDates);
+            const firstDateIndex = dates.indexOf(1);
+            const lastDateIndex = dates.lastIndexOf(TLDate);
+
+            dates.forEach((date, i) => {
+              const condition = i >= firstDateIndex && i < lastDateIndex + 1
+                                ? 'this'
+                                : 'other';
+              const newDate = i >= firstDateIndex && i < lastDateIndex + 1
+                                ? date
+                                : 'other';
+
+              dates[i] = `<li>
+                          <div class="card">
+                            <div class="card-content">
+                              <div class="media-left">
+                                <span class=${condition}>${newDate}</span>
+                              </div>
+                              <div class="content">
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+              `;
+            });
+
+            $('.days').append(dates.join(''));
+        }
+        
+        function prevMonth() {
+          $('.days').html("");
+          date.setDate(1);
+          date.setMonth(date.getMonth() - 1);
+          loadMain();
+        }
+
+        function nextMonth() {
+          $('.days').html("");
+          date.setDate(1);
+          date.setMonth(date.getMonth() + 1);
+          loadMain();
+        }
+
+        function loadMain() {
+            //Clear
+            $('.content').html("");
+            $('.popup-more-content').html("");
+
+            //Reload calendar
+            $('.days').html("");
+            renderCalender();           
+
+            let token = localStorage.getItem("rituday");
+            let ritualsList = [];
+            let loggedInEmail = '';
+            let loggedInUserName = '';
+
+            try {
+                //Verify JWT signature and decode payload
+                let base64Url = token.split('.')[1];
+                let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                user_info = JSON.parse(jsonPayload);
+                loggedInEmail = user_info['email'];
+                loggedInUserName = user_info['name'];
+
+                
+                $('.user-info').html(loggedInUserName + "님 안녕하세요!");
+                
+
+            } catch (err) {
+                $('.user-info').html("게스트님 안녕하세요!");
+            }
+
+            $('.popup').hide();
+            $('.enroll').hide();
+            $('.morePopup').hide();
+
+            const dateString = (date.getMonth() + 1) + '월 ' + date.getDate() + '일';
+
+            $(".popup-user").html(loggedInUserName);
+            $(".popup-today").html(dateString);
+
+            let functionYear = date.getFullYear();
+            let functionMonth = date.getMonth()+1;
+
+            for (var forDate = 1; forDate <= 31; forDate++) {
+              $.ajax({
+                      url: '/ritual/' + functionYear + '/' + functionMonth + '/' + forDate + '/list',
+                      type: 'GET',
+                      success: function(response) {
+                      ritualsList = response['list'];
+                      let data = JSON.parse(ritualsList);
+                      let count = data.length;
+                      let forCount = 0;
+
+                      $.each(data, function(index, ritual) {
+                          forCount +=1;
+                          var MongoId = ritual['_id']['$oid'];
+                          // ritual details 을 div의 content section에 더함
+                          let category = data[index].category;
+                          let content = data[index].content.replaceAll(/(?:\r\n|\r|\n)/g, "<br/>");
+                          let returnDate = data[index].day;
+
+                          var $div = $('div.media-left').filter(function() {
+                          return $(this).text().trim() === returnDate.toString();
+                          }).closest('div.card-content');
+
+                          if (forCount <= 3) {
+                            if (ritual.userEmail == loggedInEmail) {
+                              $div.find('.content').append(
+                                  `<button class="button is-small is-fullwidth" id='${MongoId}' onclick="showPopUp('${MongoId}', '${category}', '${content}')">
+                                      <label class="label category category-${category}"></label>
+                                      <label class="label">${loggedInUserName}</label>
+                                  </button>
+                                  `
+                              );
+                            } else {
+                                $div.find('.content').append(
+                                    `<button class="button is-small is-fullwidth" id='${MongoId}' readonly>
+                                      <label class="label category category-${category}"></label>
+                                      <label class="label">${ritual.name}</label>
+                                    </button>
+                                  `
+                                );
+                            }
+                          }
+                          if (forCount == 4) {
+                              const date = $div.find('.media-left span').text();  
+                            // user 수를 count하여 3명 이상일 경우 '더보기' 버튼을 추가함
+                            $div.find('.content').append(
+                                `<button class="button is-small is-fullwidth" id='${MongoId}' onclick="showMorePopUp('${MongoId}', '${date}')">
+                                    <label class="label">더보기</label>
+                                  </button>
+                                `
+                            );
+                          }
+                      });
+
+                  },
+                      error: function(error) {
+                      console.log(error);
+                  }
+              });
+            }
+        }
+
+        function showMoreList(MongoId, day) {
+          $('.popup-more-content').html("");
+
+            let token = localStorage.getItem("rituday");
+            let ritualsList = [];
+            let loggedInEmail = '';
+            let loggedInUserName = '';
+
+            try {
+                //Verify JWT signature and decode payload
+                let base64Url = token.split('.')[1];
+                let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                user_info = JSON.parse(jsonPayload);
+                loggedInEmail = user_info['email'];
+	              loggedInUserName = user_info['name'];
+
+            } catch (err) {
+                // console.error(err);
+            }
+
+            $(".popup-user").html(loggedInUserName);
+
+            date = new Date();
+            let functionYear = date.getFullYear();
+            let functionMonth = date.getMonth()+1;
+            let functionDay = day;
+
+            $.ajax({
+                    url: '/ritual/' + functionYear + '/' + functionMonth + '/' + functionDay +  '/list',
+                    type: 'GET',
+                    success: function(response) {
+                    ritualsList = response['list'];
+                    let data = JSON.parse(ritualsList);
+                    $.each(data, function(index, ritual) 
+                    {
+                        var name = ritual['name'];
+                        var MongoId = ritual['_id']['$oid'];
+                        let category = data[index].category;
+                        let content = data[index].content.replaceAll(/(?:\r\n|\r|\n)/g, "<br/>");
+                        
+                        // find the div with matching media-left value
+                        var $div = $('div.media-left').filter(function() {
+                            return $(this).text().trim() === ritual.day.toString();
+                            }).closest('div.card-content');
+                        // ritual details 을 div의  content section에 더함
+                        if (ritual.userEmail == loggedInEmail) {
+                          $('.popup-more-content').append(
+                              `<button class="button is-small is-fullwidth" id='${MongoId}' onclick="showPopUp('${MongoId}', '${category}', '${content}')">
+                                  <label class="label category category-${category}"></label>
+                                  <label class="label">${loggedInUserName}</label>
+                              </button>
+                              `
+                          );
+                        } else {
+                          $('.popup-more-content').append(
+                              `<button class="button is-small is-fullwidth" id='${MongoId}'>
+                                  <label class="label category category-${category}"></label>
+                                  <label class="label">${name}</label>
+                              </button>
+                              `
+                          );
+
+                        }
+                    });
+                },
+                    error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function BanPost() {
+            const enrollBtn = document.getElementsByClassName("is-primary")[0];
+            if (localStorage.getItem("rituday") == null) {
+                enrollBtn.style.display = 'none';
+            } else {
+                enrollBtn.style.display = 'block'; // 버튼을 보여줌
+            }
+        }
+
+
+        $(document).ready(function() {
+            BanPost();
+
+            logButtonConvert();
+
+            //Hide all popup
+            alertPopUpHide();
+            
+            //Load calendar
+            renderCalender();
+
+            //Load list
+            loadMain();
+        });
+
+        function showPopUp(MongoId, category, content) {
+          //Set exist data
+          $('.popup-select').val(category);
+          content = content.replaceAll('<br/>', '\n');
+          $('#popup-input-deleteModify').val(content);
+
+          $('#mongo').html(MongoId);
+          $('.popup').show();
+          $('.enroll').hide();
+          $('.morePopup').hide();
+        };
+
+        function showMorePopUp(MongoId, date) {
+          $('#mongo').html(MongoId)
+          $('.popup').hide();
+          $('.enroll').hide();
+          $('.morePopup').show();
+          showMoreList(MongoId, date);
+        };
+
+        function enrollPopsUp() {
+          $('.enroll').show();
+          $('.popup').hide();
+          $('.morePopup').hide();
+
+          //Clear
+          $('.popup-select-enroll').val('yoga').change();
+          $('#popup-input-enroll').val("");
+        };
+
+        function hidePopUp() {
+            $('.popup').hide();
+        };
+
+        function hideEnrollPopUp() {
+            $('.enroll').hide();
+        };
+
+        function hideMorePopUp() {
+            $('.morePopup').hide();
+        };
+
+        function alertPopUpHide() {
+          $('.textPopup').hide();
+        }
+
+        function alertPopUpAddShow() {
+            alertPopUpHide();
+            $('.textPopup-add').show();
+        }
+
+        function alertPopUpModifyShow() {
+            alertPopUpHide();
+            $('.textPopup-modify').show();
+        }
+
+        function alertPopUpDeleteShow() {
+            alertPopUpHide();
+            $('.textPopup-delete').show();
+        }
+
+        function alertPopUpErrorShow() {
+            alertPopUpHide();
+            $('.textPopup-error').show();
+        }
+
+        function enrollRitual(){
+          let category = $(".popup-select-enroll option:selected").val(); 
+          let impressionOld = $("#popup-input-enroll").val();
+
+          impression = impressionOld.replaceAll(/(?:\r\n|\r|\n)/g, "<br/>");
+
+          const token = localStorage.getItem("rituday");
+          var currentdate = new Date().getDate();
+
+          $.ajax({
+              type: "POST",
+              url: "/ritual/enrollment",
+              headers: {
+                'Authorization':'Bearer ' + token 
+              },
+              data: {'ritual_category': category, 'ritual_impression': impression, 'date':currentdate},
+              success: function (response) { 
+                  if (response["result"] == "success") {
+                    alertPopUpAddShow();
+                  } else {
+                    alertPopUpErrorShow();
+                  }
+
+                  loadMain();
+              }
+          })
+        };
+
+        function updateRitual(){
+          let mongoId = $("#mongo").text();
+          let newimpression = $("#popup-input-deleteModify").val();
+          const token = localStorage.getItem("rituday");
+
+          $.ajax({
+              type: "POST",
+              url: "/ritual/" + mongoId + "/update",
+              headers: {
+              'Authorization':'Bearer ' + token
+              },
+              data: {'newContent': newimpression},
+              success: function (response) { 
+                  if (response["result"] == "success") {
+                    alertPopUpModifyShow();
+                  } else {
+                    alertPopUpErrorShow();
+                  }
+
+                  loadMain();
+              }
+          })
+        };
+
+        function deleteRitual(){
+            let mongoId = $("#mongo").text();
+            const token = localStorage.getItem("rituday");
+
+            $.ajax({
+                type: "POST",
+                url: "/ritual/" + mongoId + "/delete",
+                headers: {
+                'Authorization':'Bearer ' + token
+                },
+                data: {},
+                success: function (response) { 
+                    if (response["result"] == "success") {
+                      alertPopUpDeleteShow();
+                    } else {
+                      alertPopUpErrorShow();
+                    }
+
+                    loadMain();
+                }
+            })
+        };
+    
+    </script>
+
+</head>
+<body>
+  <div class="">
+    <img class="logo" src="./../static/logo.png">
+    <div class="menu-list"></div>
+    <div class="user-info"></div>
+    <div class="month">
+        <ul>
+          <li class="prev" onclick="prevMonth()">&#10094;</li>
+          <li class="next" onclick="nextMonth()">&#10095;</li>
+          <li class="month-text"></li>
+        </ul>
+        <ul style="margin-right: 50px;">
+          <li class="next category-list"><label class="label category category-clean menu"></label>청소</li>
+          <li class="next category-list"><label class="label category category-meditation menu"></label>명상</li>
+          <li class="next category-list"><label class="label category category-exercise menu"></label>운동</li>
+          <li class="next category-list"><label class="label category category-yoga menu"></label>요가</li>
+        </ul>
+    </div>
+      
+      <ul class="weekdays">
+        <li class="weekday">일요일</li>
+        <li class="weekday">월요일</li>
+        <li class="weekday">화요일</li>
+        <li class="weekday">수요일</li>
+        <li class="weekday">목요일</li>
+        <li class="weekday">금요일</li>
+        <li class="weekday">토요일</li>
+      </ul>
+      
+      <ul class="days">
+        
+      </ul>
+
+      <button class="enrollRitual is-primary" onclick="enrollPopsUp()">오늘의 리튜얼 입력하기</button>
+
+      <article class="popup panel is-primary">
+        <div class="close-button" onclick="hidePopUp()">&times;</div>
+        <p class="panel-heading">
+          오늘 날짜: <span class="popup-today"></span><br/>
+          <span class="popup-user"></span>님 작성중 ...
+        </p>
+        <div class="popup-content">
+          <p id="mongo"></p>
+          <label class="popup-label" for="popup-select">카테고리 고르기:</label>
+          <select class="popup-select" id="popup-select">
+            <option value="yoga">요가</option>
+            <option value="exercise">운동</option>
+            <option value="meditation">명상</option>
+            <option value="clean">청소</option>
+          </select>
+  
+          <label class="popup-label" for="popup-input">리튜얼 기록하기:</label>
+          <textarea class="popup-input-deleteModify" id="popup-input-deleteModify" class="textarea" placeholder="오늘의 리튜얼을 기록하세요 !" rows="4"></textarea>
+  
+          <div class="DeleteAndModify">
+            <button class="popup-button button is-primary" onclick="updateRitual()">수정</button>
+            <button class="popup-button button is-primary" onclick="deleteRitual()">삭제</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="enroll panel is-primary">
+        <div class="close-button" onclick="hideEnrollPopUp()">&times;</div>
+        <p class="panel-heading">
+          오늘 날짜: <span class="popup-today"></span><br/>
+          <span class="popup-user"></span>님 작성중 ...
+        </p>
+        <div class="popup-content">
+          <label class="popup-label" for="popup-select-enroll">카테고리 고르기:</label>
+          <select class="popup-select-enroll" id="popup-select">
+            <option value="yoga">요가</option>
+            <option value="exercise">운동</option>
+            <option value="meditation">명상</option>
+            <option value="clean">청소</option>
+          </select>
+  
+          <label class="popup-label" for="popup-input">리튜얼 기록하기:</label>
+          <textarea class="popup-input" id="popup-input-enroll" class="textarea" placeholder="오늘의 리튜얼을 기록하세요 !" rows="4"></textarea>
+  
+          <div class="DeleteAndModify">
+            <button class="popup-button button is-primary" onclick="enrollRitual()">등록</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="morePopup panel is-primary">
+        <div class="close-button" onclick="hideMorePopUp()">&times;</div>
+        <p class="panel-heading">
+          See More <span id="popup-user"></span>
+        </p>
+        <div class="popup-more-content">
+        </div>
+      </article>
+
+      <article class="textPopup textPopup-add panel is-primary">
+        <div class="close-button" onclick="alertPopUpHide()">&times;</div>
+        등록 완료 !
+      </article>
+
+      <article class="textPopup textPopup-modify panel is-primary">
+        <div class="close-button" onclick="alertPopUpHide()">&times;</div>
+        수정 완료 !
+      </article>
+
+      <article class="textPopup textPopup-delete panel is-primary">
+        <div class="close-button" onclick="alertPopUpHide()">&times;</div>
+        삭제 완료 !
+      </article>
+
+      <article class="textPopup textPopup-error panel is-primary">
+        <div class="close-button" onclick="alertPopUpHide()">&times;</div>
+        서버 오류 !
+      </article>
+    </div>
+</body>
+</html>

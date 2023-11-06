@@ -1,0 +1,136 @@
+<!Doctype html>
+<html lang="ko">
+
+<head>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+
+        <!-- Bulma -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    </head>
+
+    <title>리튜데이 | 비밀번호 변경</title>
+
+    <script>
+        function nullCheck(value, text) {
+            if (value == null || value == undefined || value == "") {
+                $("#null-check2").html(text + " 입력하세요."); return false;
+            } else {
+                $("#null-check2").html("");
+            }
+        }
+
+        function changePw() {
+            //Clear
+            $("#password-check").html("");
+
+            let id = $("#input-id").val();
+            let old_password = $("#input-old-password").val();
+            let new_password = $("#input-new-password").val();
+            let password_check = $("#input-password-check").val();
+
+            //Null Check
+            if (nullCheck(id, "아이디") == false) return false;
+            if (nullCheck(old_password, "기존 비밀번호") == false) return false;
+            if (nullCheck(new_password, "새 비밀번호") == false) return false;
+            if (nullCheck(password_check, "확인 비밀번호") == false) return false;
+
+            //Check Password
+            if (new_password != password_check) {
+                $("#password-check").html("비밀번호가 일치하지 않습니다."); return false;
+            } else {
+                $("#password-check").html("");
+            }
+
+            //Check Old Password is Correct
+            $.ajax({
+                type: "POST",
+                url: "/account/login",
+                data: { give_id: id, give_password: old_password },
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        //Clear code
+                        $("#password-check").html("");
+
+                        //Change Password
+                        $.ajax({
+                            type: "POST",
+                            url: "/account/change/password",
+                            data: { give_id: id, give_password: new_password },
+                            success: function (response) {
+                                if (response["result"] == "success") {
+                                    //Clear code
+                                    $("#password-check").html("");
+                                    //Show calendar page
+                                    $(location).attr('href', 'http://localhost:5000/calendar.html');
+                                } else {
+                                    $("#password-check").html("비밀번호 변경 실패했습니다."); return false;
+                                }
+                            }
+                        })
+                    } else {
+                        $("#password-check").html("기존 비밀번호가 올바르지 않습니다."); return false;
+                    }
+                }
+            })
+        }
+    </script>
+
+    <style>
+        #logo { 
+            text-align: center;
+        }
+
+        #null-check1, #null-check2, #id-check, #password-check {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero is-fullheight">
+        <div class="hero-body is-justify-content-center is-align-items-center">
+            <div class="columns is-flex is-flex-direction-column box">
+                <div id="logo" class="column">
+                    <img src="./../static/logo.png">
+                </div>
+                <div class="column">
+                    <label class="label" style="text-align: center">비밀번호를 변경할게요 !</label>
+                </div>
+                <div class="column">
+                    <label for="input-id">아이디</label>
+                    <input id="input-id" class="input is-primary" type="text" placeholder="아이디를 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="input-old-password">기존 비밀번호</label>
+                    <input id="input-old-password" class="input is-primary" type="password" placeholder="기존 비밀번호를 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="input-new-password">새 비밀번호</label>
+                    <input id="input-new-password" class="input is-primary" type="password" placeholder="새 비밀번호를 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="input-password-check">새 비밀번호 확인</label>
+                    <input id="input-password-check" class="input is-primary" type="password" placeholder="새 비밀번호를 다시 한번 입력하세요.">
+                    <p id="password-check"></p>
+                </div>
+                <div class="column">
+                    <button class="button is-primary is-fullwidth" type="button" onclick="changePw()">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

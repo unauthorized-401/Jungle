@@ -1,0 +1,173 @@
+<!Doctype html>
+<html lang="ko">
+
+<head>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+
+        <!-- Bulma -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    </head>
+
+    <title>리튜데이 | 회원가입</title>
+
+    <script>
+        function nullCheck(value, text) {
+            if (value == null || value == undefined || value == "") {
+                $("#null-check").html(text + " 입력하세요."); return false;
+            } else {
+                $("#null-check").html("");
+            }
+        }
+
+        function membership() {
+            //Clear
+            $("#id-check").html("");
+            $("#password-check").html("");
+            $("#email-check").html("");
+            $("#null-check").html("");
+
+            let id = $("#input-id").val();
+            let password = $("#input-password").val();
+            let password_check = $("#input-password-check").val();
+            let name = $("#input-name").val();
+            let email = $("#input-email").val();
+
+            //Null Check
+            if (nullCheck(id, "아이디") == false) return false;
+            if (nullCheck(password, "비밀번호") == false) return false;
+            if (nullCheck(password_check, "확인 비밀번호") == false) return false;
+            if (nullCheck(name, "이름") == false) return false;
+            if (nullCheck(email, "이메일") == false) return false;
+
+            //Check Password
+            if (password != password_check) {
+                $("#password-check").html("비밀번호가 일치하지 않습니다."); return false;
+            } else {
+                $("#password-check").html("");
+            }
+
+            //Check Email Format
+            let regExp = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.[a-zA-Z]{2,4}$/;
+
+            if(!regExp.test(email)){
+                $("#email-check").html("올바른 이메일 형식이 아닙니다."); return false;
+            }
+
+            //Check ID Exist
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: "/account/check/id",
+                data: { give_id: id },
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        $("#id-check").html("");
+
+                        //Check Email Exist
+                        $.ajax({
+                            type: "POST",
+                            async: false,
+                            url: "/account/check/email",
+                            data: { give_email: email },
+                            success: function (response) {
+                                if (response["result"] == "success") {
+                                    $("#email-check").html("");
+
+                                    //Create Account
+                                    $.ajax({
+                                        type: "POST",
+                                        async: false,
+                                        url: "/account/create",
+                                        data: { give_id: id, give_password: password, give_name: name, give_email: email },
+                                        success: function (response) {
+                                            if (response["result"] == "success") {
+                                                //Clear code
+                                                $("#null-check").html("");
+                                                //Show calendar page
+                                                $(location).attr('href', 'http://localhost:5000/login.html');
+                                            } else {
+                                                $("#null-check").html("계정 생성에 실패했습니다. 다시 시도해주세요."); return false;
+                                            }
+                                        }
+                                    })
+                                } else {
+                                    $("#email-check").html("이미 존재하는 이메일입니다. 기존 계정을 확인해주세요."); return false;
+                                }
+                            }
+                        })
+                    } else {
+                        $("#id-check").html("중복된 아이디입니다."); return false;
+                    }
+                }
+            })
+        }
+    </script>
+
+    <style>
+        #logo { 
+            text-align: center;
+        }
+
+        #null-check, #id-check, #password-check, #email-check {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero is-fullheight">
+        <div class="hero-body is-justify-content-center is-align-items-center">
+            <div class="columns is-flex is-flex-direction-column box">
+                <div id="logo" class="column">
+                    <img src="./../static/logo.png">
+                </div>
+                <div class="column">
+                    <label class="label" style="text-align: center">리튜데이 사용을 위해 회원가입을 진행해주세요 !</label>
+                </div>
+                <div class="column">
+                    <label for="input-id">아이디</label>
+                    <input id="input-id" class="input is-primary" type="text" placeholder="아이디를 입력하세요.">
+                    <p id="id-check"></p>
+                </div>
+                <div class="column">
+                    <label for="input-password">비밀번호</label>
+                    <input id="input-password" class="input is-primary" type="password" placeholder="비밀번호를 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="input-password-check">비밀번호 확인</label>
+                    <input id="input-password-check" class="input is-primary" type="password" placeholder="비밀번호를 다시 한번 입력하세요.">
+                    <p id="password-check"></p>
+                </div>
+                <div class="column">
+                    <label for="input-name">이름</label>
+                    <input id="input-name" class="input is-primary" type="text" placeholder="이름을 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="input-email">이메일</label>
+                    <input id="input-email" class="input is-primary" type="text" placeholder="이메일을 입력하세요.">
+                    <p id="email-check"></p>
+                </div>
+                <div class="column">
+                    <div id="null-check"></div>
+                </div>
+                <div class="column">
+                    <button class="button is-primary is-fullwidth" type="button" onclick="membership()">가입하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

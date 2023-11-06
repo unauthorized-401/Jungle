@@ -1,0 +1,113 @@
+<!Doctype html>
+<html lang="ko">
+
+<head>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+
+        <!-- Bulma -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    </head>
+
+    <title>리튜데이 | 로그인</title>
+
+    <script>
+        function login() {
+            //Clear
+            $("#null-check").html("");
+
+            let id = $("#input-id").val();
+            let password = $("#input-password").val();
+
+            if (id == null || id == undefined || id == "") {
+                $("#null-check").html("아이디를 입력하세요."); return false;
+            } else {
+                $("#null-check").html("");
+            }
+
+            if (password == null || password == undefined || password == "") {
+                $("#null-check").html("비밀번호를 입력하세요."); return false;
+            } else {
+                $("#null-check").html("");
+            }
+            
+            $.ajax({
+                type: "POST",
+                url: "/account/login",
+                data: { give_id: id, give_password: password },
+                success: function (response) {
+                    if (response["result"] == "success") {
+                        $("#null-check").html("");
+                        //Save token at localstorage
+                        localStorage.setItem("rituday", response["token"]);
+                        //Show calendar page
+                        $(location).attr('href', 'http://localhost:5000/calendar.html');
+                    } else {
+                        $("#null-check").html("로그인에 실패했습니다."); return false;
+                    }
+                }
+            })
+        }
+    </script>
+
+    <style>
+        #logo { 
+            text-align: center; 
+        }
+
+        #null-check {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero is-fullheight">
+        <div class="hero-body is-justify-content-center is-align-items-center">
+            <div class="columns is-flex is-flex-direction-column box">
+                <div id="logo" class="column">
+                    <img src="./../static/logo.png">
+                </div>
+                <div class="column">
+                    <label for="id">아이디</label>
+                    <input id="input-id" class="input is-primary" type="text" placeholder="아이디를 입력하세요.">
+                </div>
+                <div class="column">
+                    <label for="password">비밀번호</label>
+                    <input id="input-password" class="input is-primary" type="password" placeholder="비밀번호를 입력하세요.">
+                </div>
+                <!-- <div class="column">
+                    <p class="is-size-7"><input type="checkbox"/>로그인 유지</p>
+                </div> -->
+                <div class="column">
+                    <div id="null-check"></div>
+                </div>
+                <div class="column">
+                    <button class="button is-primary is-fullwidth" type="button" onclick="login()">로그인</button>
+                </div>
+                <div class="has-text-centered">
+                    <a href="./membership.html" class="is-size-7 has-text-primary">회원가입</a>
+                </div>
+                <div class="has-text-centered">
+                    <a href="./find.html" class="is-size-7 has-text-primary">아이디/비밀번호 찾기</a>
+                </div>
+                <div class="has-text-centered">
+                    <a href="./change.html" class="is-size-7 has-text-primary">비밀번호 변경</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
